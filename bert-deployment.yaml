@@ -35,7 +35,7 @@ spec:
           claimName: llm-pvc
       containers:
       - name: serving
-        image:  nvcr.io/nvidia/tritonserver:24.03-python-py3  #nvcr.io/nvaie/tritonserver-<NVAIE-MAJOR-VERSION>:<NVAIE-CONTAINER-TAG>
+        image:  nvcr.io/nvidia/tritonserver:24.03-py3  #nvcr.io/nvaie/tritonserver-<NVAIE-MAJOR-VERSION>:<NVAIE-CONTAINER-TAG>
         ports:
         - name: grpc
           containerPort: 8001
