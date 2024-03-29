@@ -1,3 +1,16 @@
+# pvc-pod-demo.yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: llm-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 300Gi
+  storageClassName: standard-rwo
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -14,13 +27,15 @@ spec:
       labels:
         app: triton-server
     spec:
+      nodeSelector:
+        cloud.google.com/gke-accelerator: nvidia-tesla-t4
       volumes:
       - name: model-repo
         persistentVolumeClaim:
-          claimName: nfs-pvc
+          claimName: llm-pvc
       containers:
       - name: serving
-        image:  nvcr.io/nvidia/tritonserver:24.02-vllm-python-py3  #nvcr.io/nvaie/tritonserver-<NVAIE-MAJOR-VERSION>:<NVAIE-CONTAINER-TAG>
+        image:  nvcr.io/nvidia/tritonserver:24.03-python-py3  #nvcr.io/nvaie/tritonserver-<NVAIE-MAJOR-VERSION>:<NVAIE-CONTAINER-TAG>
         ports:
         - name: grpc
           containerPort: 8001
@@ -35,11 +50,6 @@ spec:
           limits:
             nvidia.com/gpu: 1
         command: ["tritonserver", "--model-store=/models"]
-      volumes:
-      - name: model-repo
-        persistentVolumeClaim:
-          claimName: nfs-pvc
-
 ---
 kind: HorizontalPodAutoscaler
 apiVersion: autoscaling/v2beta1
