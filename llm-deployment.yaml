@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bert-qa
+  labels:
+    app: triton-server
+spec:
+  selector:
+    matchLabels:
+      app: triton-server
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: triton-server
+    spec:
+      volumes:
+      - name: model-repo
+        persistentVolumeClaim:
+          claimName: nfs-pvc
+      containers:
+      - name: serving
+        image:  nvcr.io/nvidia/tritonserver:24.02-vllm-python-py3  #nvcr.io/nvaie/tritonserver-<NVAIE-MAJOR-VERSION>:<NVAIE-CONTAINER-TAG>
+        ports:
+        - name: grpc
+          containerPort: 8001
+        - name: http
+          containerPort: 8000
+        - name: metrics
+          containerPort: 8002
+        volumeMounts:
+        - name: model-repo
+          mountPath: "/models"
+        resources:
+          limits:
+            nvidia.com/gpu: 1
+        command: ["tritonserver", "--model-store=/models"]
+      volumes:
+      - name: model-repo
+        persistentVolumeClaim:
+          claimName: nfs-pvc
+
+---
+kind: HorizontalPodAutoscaler
+apiVersion: autoscaling/v2beta1
+metadata:
+name: gpu-hpa
+spec:
+scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: bert-qa
+minReplicas: 1
+maxReplicas: 3
+metrics:
+- type: Pods
+  pods:
+     metricName: prometheus.googleapis.com/DCGM_FI_DEV_GPU_UTIL/gauge # Average GPU usage of the pod.
+     targetAverageValue: 60

@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: client
+  labels:
+    app: client
+spec:
+ replicas: 1
+ selector:
+    matchLabels:
+      app: client
+ template:
+    metadata:
+     labels:
+        app: client
+    spec:
+      containers:
+        - name: serving
+          image:  vcr.io/nvidia/tritonserver:24.02-py3-s#docker #pull nvcr.io/nvaie/tritonserver-<NVAIE-MAJOR-VERSION>:<NVAIE-CONTAINER-TAG>
+          command: [ "curl -m 1 -L -s -o /dev/null -w %{http_code} http://$SERVICE_CLUSTER_IP:8000/v2/health/ready" ]
+

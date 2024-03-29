@@ -26,8 +26,8 @@ gcloud container clusters create $CLUSTER_NAME --location ${REGION} \
 
  gcloud container node-pools create $CLUSTER_NAME-pool --cluster $CLUSTER_NAME \
  --accelerator type=nvidia-tesla-t4,count=1,gpu-driver-version=latest  \
- --machine-type n2d-standard-4 --num-nodes 0 --min-nodes 0 --max-nodes 4 \
+ --machine-type n1-standard-4 --num-nodes 1 --min-nodes 1 --max-nodes 4 \
  --ephemeral-storage-local-ssd=count=1   --enable-autoscaling --enable-image-streaming \
- --num-nodes=0 --min-nodes=0 --max-nodes=3 --shielded-secure-boot   --shielded-integrity-monitoring \
-  --node-version=1.28 --node-locations $ZONE_1 --region $REGION --spot
+ --shielded-secure-boot   --shielded-integrity-monitoring \
+  --node-version=1.29 --node-locations $ZONE_1 --region $REGION --spot
 

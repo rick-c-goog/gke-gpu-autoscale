@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: perf-client
+  labels:
+    app: perf-client
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: perf-client
+  template:
+    metadata:
+      labels:
+        app: perf-client
+    spec:
+      containers:
+        - name: serving
+          image: vbagade/bert
+          command: [ "/workspace/install/bin/perf_client --max-threads 10 -m bert -x 1 -p 200000 -d -v -z -i gRPC -u$TRITON_SERVICE_IP:8001 -b 1 -l 100 -c 50 "]
+
