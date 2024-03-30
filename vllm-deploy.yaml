@@ -42,7 +42,7 @@ spec:
             - name: shm-size
               value: 1g
           command: ["python3", "-m", "vllm.entrypoints.openai.api_server"]
-          args: ["--model=google/gemma-7b",
+          args: ["--model=google/gemma-2b",
                  "--gpu-memory-utilization=0.95",
                  "--disable-log-requests",
                  "--trust-remote-code",
