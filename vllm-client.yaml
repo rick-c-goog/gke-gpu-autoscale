@@ -18,9 +18,9 @@ spec:
           - name: LLM_URL
             value: "http://CLusterIP:8000"
           - name: LLM_NAME
-            value: "meta-llama/Llama-2-7b-hf"
+            value: "google/gemma-2b"
           - name: MAX_TOKENS
-            value: "400"
+            value: "1000"
         resources:
           requests:
             memory: "128Mi"
