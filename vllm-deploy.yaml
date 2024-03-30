@@ -21,8 +21,8 @@ spec:
          emptyDir:
               medium: Memory
       nodeSelector:
-        cloud.google.com/gke-accelerator: nvidia-l4
-      serviceAccountName: vllm
+        cloud.google.com/gke-accelerator: nvidia-tesla-t4
+      serviceAccountName: triton
       containers:
         - name: vllm-inference-server
           image: vllm/vllm-openai
@@ -42,7 +42,7 @@ spec:
             - name: shm-size
               value: 1g
           command: ["python3", "-m", "vllm.entrypoints.openai.api_server"]
-          args: ["--model=meta-llama/Llama-2-7b-hf",
+          args: ["--model=google/gemma-7b",
                  "--gpu-memory-utilization=0.95",
                  "--disable-log-requests",
                  "--trust-remote-code",
@@ -59,6 +59,26 @@ spec:
             - mountPath: /.cache
               name: cache
 
+---
+kind: HorizontalPodAutoscaler
+apiVersion: autoscaling/v2
+metadata:
+ name: gpu-hpa
+spec:
+ scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: vllm-server
+ minReplicas: 1
+ maxReplicas: 3
+ metrics:
+ - type: Pods
+   pods:
+     metric:
+      name: prometheus.googleapis.com|DCGM_FI_DEV_GPU_UTIL|gauge # Average GPU usage of the pod.
+     target: 
+       type: AverageValue
+       averageValue: 80
 ---
 apiVersion: v1
 kind: Service
