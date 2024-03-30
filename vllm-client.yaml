@@ -11,25 +11,31 @@ spec:
       labels:
         app: vllm-client
     spec:
-      containers:
-      - name: gradio
-        image: us-east1-docker.pkg.dev/rick-vertex-ai/gke-llm/vllm-client:latest
-        env:
-          - name: LLM_URL
-            value: "http://CLusterIP:8000"
-          - name: LLM_NAME
-            value: "google/gemma-2b"
-          - name: MAX_TOKENS
-            value: "1000"
-        resources:
+       containers:
+       - name: gradio
+         image: us-docker.pkg.dev/google-samples/containers/gke/gradio-app:v1.0.0
+         resources:
           requests:
-            memory: "128Mi"
-            cpu: "250m"
+            cpu: "512m"
+            memory: "512Mi"
           limits:
-            memory: "256Mi"
-            cpu: "500m"
-        ports:
-        - containerPort: 7860
+            cpu: "1"
+            memory: "512Mi"
+         env:
+         - name: CONTEXT_PATH
+           value: "/generate"
+         - name: HOST
+           value: "http://llm-service:8000"
+         - name: LLM_ENGINE
+           value: "vllm"
+         - name: MODEL_ID
+           value: "gemma"
+         - name: USER_PROMPT
+           value: "<start_of_turn>user\nprompt<end_of_turn>\n"
+         - name: SYSTEM_PROMPT
+           value: "<start_of_turn>model\nprompt<end_of_turn>\n"
+         ports:
+         - containerPort: 7860
 ---
 apiVersion: v1
 kind: Service
